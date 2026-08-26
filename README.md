@@ -1,62 +1,80 @@
-<!-- Description -->
+# HelloID-Conn-SA-Full-Exchange-On-Premises-Usermailbox-Remove-Emailaddress
+
+| :information_source: Information                                                                                                                                                                                                                                                                                                                                                          |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| This repository contains the connector and configuration code only. The implementer is responsible for acquiring the connection details such as username, password, certificate, etc. You might even need to sign a contract or agreement with the supplier before implementing this connector. Please contact the client's application manager to coordinate the connector requirements. |
+
 ## Description
-This HelloID Service Automation Delegated Form provides the functionality to remove an non primary emailaddress from a mailbox. The following options are available:
- 1. Give a name to lookup a mailbox
- 2. The result will show you a list of mailboxes. You will need select to correct one
- 3. Select the email address you want to remove
- 4. The selected email address will be removed
 
-## Versioning
-| Version | Description | Date |
-| - | - | - |
-| 1.0.2   | Added version number and updated code for SA-agent and auditlogging | 2022/08/24  |
-| 1.0.1   | Added version number and updated all-in-one script | 2021/11/16  |
-| 1.0.0   | Initial release | 2021/04/29  |
+_HelloID-Conn-SA-Full-Exchange-On-Premises-Usermailbox-Remove-Emailaddress_ is a template designed for use with HelloID Service Automation (SA) Delegated Forms. It can be imported into HelloID and customized according to your requirements.
 
-<!-- TABLE OF CONTENTS -->
-## Table of Contents
-* [Description](#description)
-* [All-in-one PowerShell setup script](#all-in-one-powershell-setup-script)
-  * [Getting started](#getting-started)
-* [Post-setup configuration](#post-setup-configuration)
-* [Manual resources](#manual-resources)
+By using this delegated form, you can remove secondary email addresses from Exchange On-Premises user mailboxes. The following options are available:
 
+1.  Search for user mailboxes by name, alias, SAM account name, or primary SMTP address
+2.  Select the target mailbox from the search results
+3.  View all secondary email addresses (primary email address is excluded from the list)
+4.  Select one or multiple email addresses to remove
+5.  The selected email addresses are removed from the mailbox
+6.  Audit logs are generated for all operations
 
-## All-in-one PowerShell setup script
-The PowerShell script "createform.ps1" contains a complete PowerShell script using the HelloID API to create the complete Form including user defined variables, tasks and data sources.
+## Getting started
 
- _Please note that this script asumes none of the required resources do exists within HelloID. The script does not contain versioning or source control_
+### Requirements
 
+- **Exchange On-Premises Environment**:<br>
+  A working Exchange On-Premises server with PowerShell remoting enabled. The Exchange server must be accessible from the HelloID agent.
+- **Service Account**:<br>
+  A service account with sufficient permissions to manage mailboxes in Exchange On-Premises. The account should have the "Recipient Management" role or equivalent permissions to modify mailbox email addresses.
+- **PowerShell Remoting**:<br>
+  PowerShell remoting must be enabled on the Exchange server, and the HelloID agent must be able to establish a remote session using the configured connection URI.
+- **Network Connectivity**:<br>
+  The HelloID agent must have network access to the Exchange server on the required ports (typically port 80 or 443 for HTTP/HTTPS).
 
-### Getting started
-Please follow the documentation steps on [HelloID Docs](https://docs.helloid.com/hc/en-us/articles/360017556559-Service-automation-GitHub-resources) in order to setup and run the All-in one Powershell Script in your own environment.
+### Connection settings
 
+The following user-defined variables are used by the connector.
 
-## Post-setup configuration
-After the all-in-one PowerShell script has run and created all the required resources. The following items need to be configured according to your own environment
- 1. Update the following [user defined variables](https://docs.helloid.com/hc/en-us/articles/360014169933-How-to-Create-and-Manage-User-Defined-Variables)
-<table>
-  <tr><td><strong>Variable name</strong></td><td><strong>Example value</strong></td><td><strong>Description</strong></td></tr>
-  <tr><td>ExchangeConnectionUri</td><td>********</td><td>Exchange server URI</td></tr>
-  <tr><td>ExchangeAdminUsername</td><td>domain/user</td><td>Exchange server admin account</td></tr>
-  <tr><td>ExchangeAdminPassword</td><td>********</td><td>Exchange server admin password</td></tr>
-  <tr><td>ExchangeSearchOU</td><td>Example.com/Users</td><td>Exchange server OrganizationalUnit to search</td></tr>
-</table>
+| Setting               | Description                                                         | Mandatory |
+| --------------------- | ------------------------------------------------------------------- | --------- |
+| ExchangeConnectionUri | The connection URI to the Exchange On-Premises server               | Yes       |
+| ExchangeAdminUsername | The username of the service account with Exchange management rights | Yes       |
+| ExchangeAdminPassword | The password of the service account                                 | Yes       |
 
-## Manual resources
-This Delegated Form uses the following resources in order to run
+## Remarks
 
-### Powershell data source '[powershell-datasource]_Exchange-mailbox-remove-email-address-get-mailbox'
-This Powershell data source runs a query to search for the mailbox.
+### Primary Email Address Cannot Be Removed Directly
 
-### Powershell data source '[powershell-datasource]_Exchange-mailbox-remove-email-address'
-This Powershell data source runs a query to search for the existing emailaddresses of the selected mailbox.
+- The form only displays secondary email addresses (smtp:) and excludes the primary SMTP address (SMTP:). To remove the current primary email address, you must first change it to a different email address using the "Change Primary Email Address" connector, then remove the old address as a secondary address.
 
-### Delegated form task '[task]_Exchange on-premise - Mailbox remove email address'
-This delegated form task removes the Email Address from the mailbox
+### ExchangeGuid-Based Identification
+
+- The connector uses ExchangeGuid as the unique identifier for mailboxes instead of UserPrincipalName or other attributes. This ensures reliable mailbox identification even when other attributes change.
+
+### Wildcard Search Support
+
+- The search functionality supports wildcard searches across multiple attributes: Name, SamAccountName, Alias, and PrimarySmtpAddress. Using "\*" as the search value will return all user mailboxes (limited by result size settings).
+
+### TLS 1.2 Requirement
+
+- The connector enforces TLS 1.2 for secure communications. Ensure your Exchange server and HelloID agent support TLS 1.2.
+
+### Session Management
+
+- Each datasource and task establishes its own Exchange remote session and properly cleans up the session after execution, even in error scenarios. This prevents session leaks and connection pool exhaustion.
+
+## Development resources
+
+### API documentation
+
+- [Exchange PowerShell - Get-Mailbox](https://learn.microsoft.com/en-us/powershell/module/exchange/get-mailbox)
+- [Exchange PowerShell - Set-Mailbox](https://learn.microsoft.com/en-us/powershell/module/exchange/set-mailbox)
+- [Connect to Exchange Servers using remote PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-exchange-servers-using-remote-powershell)
 
 ## Getting help
-_If you need help, feel free to ask questions on our [forum](https://forum.helloid.com/forum/helloid-connectors/service-automation/250-helloid-sa-exchange-onpremises-remove-email-address)_
 
-## HelloID Docs
+> :bulb: **Tip:**  
+> _For more information on Delegated Forms, please refer to our [documentation](https://docs.helloid.com/en/service-automation/delegated-forms.html) pages_.
+
+## HelloID docs
+
 The official HelloID documentation can be found at: https://docs.helloid.com/
