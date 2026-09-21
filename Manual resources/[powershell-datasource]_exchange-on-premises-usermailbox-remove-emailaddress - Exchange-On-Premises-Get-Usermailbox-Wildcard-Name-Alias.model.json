@@ -1,0 +1,34 @@
+[
+  {
+    "key": "ExchangeGuid",
+    "type": 0
+  },
+  {
+    "key": "SamAccountName",
+    "type": 0
+  },
+  {
+    "key": "UserPrincipalName",
+    "type": 0
+  },
+  {
+    "key": "DistinguishedName",
+    "type": 0
+  },
+  {
+    "key": "PrimarySmtpAddress",
+    "type": 0
+  },
+  {
+    "key": "DisplayName",
+    "type": 0
+  },
+  {
+    "key": "Identity",
+    "type": 0
+  },
+  {
+    "key": "HiddenFromAddressListsEnabled",
+    "type": 0
+  }
+]
